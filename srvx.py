@@ -880,6 +880,27 @@ class ChanServ():
 
         return response['data'][0].startswith('Channel modes are now')
 
+    def names(self, channel):
+        response = self._command('names %s' % channel)
+
+        if response['data'][0] == 'You must provide the name of a channel ' + \
+            'that exists.':
+            return None
+        elif response['data'][0].endswith('has not been registered with ' + \
+            'ChanServ.'):
+            return None
+
+        names = []
+        for line in response['data'][:-1]:
+            users = line.split(' ')
+            for user in users[3:]:
+                c1 = user.find(':')
+                c2 = user.find('(')
+
+                names.append({'access': user[:c1], 'nick': user[c1+1:c2], 'account': user[c2+1:-1]})
+        return names
+
+
     def notes(self, channel):
         response = self._command('note %s' % channel)
 
